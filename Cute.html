@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promise Day 💌</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #ffeef8 0%, #ffe0f0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Floating hearts background */
+        .bg-hearts {
+            position: fixed;
+            font-size: 20px;
+            opacity: 0.1;
+            pointer-events: none;
+            animation: floatHeart 15s infinite;
+        }
+
+        @keyframes floatHeart {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-50px) rotate(180deg); }
+        }
+
+        /* Envelope Styles */
+        .envelope-scene {
+            position: relative;
+            width: 450px;
+            height: 350px;
+            perspective: 1500px;
+        }
+
+        .envelope-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: all 1.2s;
+        }
+
+        .envelope-wrapper.open {
+            animation: envelopeDisappear 1.2s 2.5s forwards;
+        }
+
+        @keyframes envelopeDisappear {
+            to {
+                opacity: 0;
+                transform: scale(0.3) translateY(-200px) rotate(20deg);
+            }
+        }
+
+        .envelope-back {
+            position: absolute;
+            width: 450px;
+            height: 280px;
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa, #c4b5fd);
+            border-radius: 15px;
+            bottom: 0;
+            box-shadow: 
+                0 15px 50px rgba(139, 92, 246, 0.5),
+                inset 0 -2px 10px rgba(255, 255, 255, 0.3);
+            border: 3px solid #7c3aed;
+        }
+
+        .envelope-front {
+            position: absolute;
+            width: 450px;
+            height: 280px;
+            background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+            border-radius: 15px;
+            bottom: 0;
+            z-index: 2;
+            box-shadow: inset 0 2px 10px rgba(255, 255, 255, 0.2);
+            border: 3px solid #7c3aed;
+        }
+
+        /* Decorative patterns on envelope */
+        .envelope-pattern {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0.15;
+            background-image: 
+                repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px);
+        }
+
+        .envelope-flap {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 225px solid transparent;
+            border-right: 225px solid transparent;
+            border-top: 180px solid #7c3aed;
+            top: 0;
+            left: 0;
+            transform-origin: top center;
+            transition: transform 1.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 3;
+            cursor: pointer;
+            filter: drop-shadow(0 5px 15px rgba(124, 58, 237, 0.4));
+        }
+
+        .envelope-flap::before {
+            content: '';
+            position: absolute;
+            top: -180px;
+            left: -225px;
+            width: 450px;
+            height: 180px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+        }
+
+        .envelope-flap:hover {
+            filter: drop-shadow(0 8px 20px rgba(124, 58, 237, 0.6)) brightness(1.1);
+        }
+
+        .envelope-flap.open {
+            transform: rotateX(-180deg);
+        }
+
+        .envelope-seal {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            z-index: 4;
+            box-shadow: 
+                0 5px 20px rgba(251, 191, 36, 0.5),
+                inset 0 2px 5px rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 4px solid #fff;
+            animation: sealGlow 2s infinite;
+        }
+
+        @keyframes sealGlow {
+            0%, 100% { box-shadow: 0 5px 20px rgba(251, 191, 36, 0.5), inset 0 2px 5px rgba(255, 255, 255, 0.3); }
+            50% { box-shadow: 0 8px 30px rgba(251, 191, 36, 0.8), inset 0 2px 5px rgba(255, 255, 255, 0.5); }
+        }
+
+        .envelope-seal:hover {
+            transform: translateX(-50%) scale(1.15) rotate(10deg);
+            box-shadow: 0 10px 30px rgba(251, 191, 36, 0.8);
+        }
+
+        .click-text {
+            position: absolute;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #8b5cf6;
+            font-size: 1.3em;
+            font-weight: bold;
+            animation: clickPulse 2s infinite;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);
+        }
+
+        @keyframes clickPulse {
+            0%, 100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+            50% { opacity: 0.7; transform: translateX(-50%) translateY(-5px) scale(1.05); }
+        }
+
+        /* Flying Roses */
+        .rose {
+            position: fixed;
+            font-size: 45px;
+            pointer-events: none;
+            z-index: 1000;
+            animation: flyRose 2.5s ease-out forwards;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.2));
+        }
+
+        @keyframes flyRose {
+            0% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) rotate(720deg) scale(0.4);
+                opacity: 0;
+            }
+        }
+
+        /* Map Container with Garden */
+        .map-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: 
+                linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%);
+            z-index: 100;
+        }
+
+        .map-container.active {
+            display: block;
+            animation: mapAppear 1s ease-out;
+        }
+
+        @keyframes mapAppear {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Treasure Map Background */
+        .treasure-map {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            background: 
+                radial-gradient(circle at 30% 40%, rgba(254, 240, 138, 0.4), transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(251, 191, 36, 0.3), transparent 50%),
+                linear-gradient(135deg, #fef9e3, #fef3c7);
+            border: 8px solid #92400e;
+            border-radius: 20px;
+            box-shadow: 
+                0 30px 80px rgba(0, 0, 0, 0.3),
+                inset 0 0 100px rgba(146, 64, 14, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Map decorative lines */
+        .map-lines {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0.15;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 50px, #92400e 50px, #92400e 52px),
+                repeating-linear-gradient(90deg, transparent, transparent 50px, #92400e 50px, #92400e 52px);
+        }
+
+        /* Compass rose */
+        .compass {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            width: 80px;
+            height: 80px;
+            font-size: 3em;
+            opacity: 0.3;
+            animation: compassRotate 20s linear infinite;
+        }
+
+        @keyframes compassRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Garden decorations */
+        .garden-flower {
+            position: absolute;
+            font-size: 2.5em;
+            pointer-events: none;
+            animation: flowerSway 3s ease-in-out infinite;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.2));
+        }
+
+        @keyframes flowerSway {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        .garden-tree {
+            position: absolute;
+            font-size: 4em;
+            pointer-events: none;
+            animation: treeSway 4s ease-in-out infinite;
+        }
+
+        @keyframes treeSway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        .garden-bush {
+            position: absolute;
+            font-size: 2em;
+            pointer-events: none;
+        }
+
+        /* Decorative path */
+        .garden-path {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .path-stone {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: rgba(120, 53, 15, 0.2);
+            border-radius: 50%;
+        }
+
+        /* Gift Boxes */
+        .gift-box {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            cursor: pointer;
+            transition: all 0.3s;
+            animation: giftAppear 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+            opacity: 0;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+        }
+
+        @keyframes giftAppear {
+            0% {
+                opacity: 0;
+                transform: scale(0) rotate(-180deg);
+            }
+            60% {
+                transform: scale(1.3) rotate(15deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .gift-box:hover {
+            transform: scale(1.2) rotate(10deg);
+            filter: drop-shadow(0 15px 30px rgba(0,0,0,0.4));
+        }
+
+        .gift-box.opened {
+            animation: giftOpen 0.6s ease-out forwards;
+        }
+
+        @keyframes giftOpen {
+            0% {
+                transform: scale(1) rotate(0deg);
+            }
+            50% {
+                transform: scale(1.3) rotate(180deg);
+            }
+            100% {
+                transform: scale(0) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Sparkles around gifts */
+        .gift-sparkle {
+            position: absolute;
+            font-size: 1.5em;
+            animation: sparkle 1.5s infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Promise Cards */
+        .promise-card {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 550px;
+            max-width: 90%;
+            background: linear-gradient(135deg, #ffffff, #fef3c7);
+            padding: 50px;
+            border-radius: 30px;
+            box-shadow: 
+                0 30px 80px rgba(0, 0, 0, 0.4),
+                inset 0 0 50px rgba(251, 191, 36, 0.1);
+            z-index: 200;
+            text-align: center;
+            display: none;
+            border: 5px solid #fbbf24;
+        }
+
+        .promise-card.show {
+            display: block;
+            animation: cardPopIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        @keyframes cardPopIn {
+            0% {
+                transform: translate(-50%, -50%) scale(0) rotate(-180deg);
+                opacity: 0;
+            }
+            60% {
+                transform: translate(-50%, -50%) scale(1.15) rotate(10deg);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .promise-emoji-big {
+            font-size: 5em;
+            margin-bottom: 25px;
+            animation: emojiDance 1s infinite;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2));
+        }
+
+        @keyframes emojiDance {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .promise-text-big {
+            font-size: 1.5em;
+            color: #333;
+            line-height: 1.9;
+            margin-bottom: 35px;
+            font-weight: 500;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+            color: white;
+            border: none;
+            padding: 18px 45px;
+            font-size: 1.3em;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+            border: 3px solid #7c3aed;
+        }
+
+        .next-btn:hover {
+            transform: scale(1.1) translateY(-3px);
+            box-shadow: 0 12px 30px rgba(139, 92, 246, 0.6);
+        }
+
+        /* Final Contract */
+        .contract-container {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 650px;
+            max-width: 90%;
+            max-height: 90vh;
+            background: linear-gradient(135deg, #ffffff, #fef3c7);
+            padding: 60px;
+            border-radius: 35px;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
+            z-index: 300;
+            overflow-y: auto;
+            border: 6px solid #fbbf24;
+        }
+
+        .contract-container.show {
+            display: block;
+            animation: contractAppear 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        @keyframes contractAppear {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.3) rotate(-20deg);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1) rotate(0deg);
+            }
+        }
+
+        .contract-title {
+            font-size: 2.5em;
+            color: #8b5cf6;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);
+        }
+
+        .contract-subtitle {
+            text-align: center;
+            color: #a78bfa;
+            font-style: italic;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+
+        .contract-promises {
+            margin: 35px 0;
+        }
+
+        .contract-promise-item {
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #fef9e3, #fef3c7);
+            border-radius: 15px;
+            border-left: 6px solid #8b5cf6;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .contract-promise-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .contract-promise-emoji {
+            font-size: 2.5em;
+            flex-shrink: 0;
+        }
+
+        .contract-promise-text {
+            font-size: 1.15em;
+            color: #333;
+            line-height: 1.7;
+        }
+
+        .contract-footer {
+            margin-top: 45px;
+            text-align: center;
+            padding-top: 35px;
+            border-top: 3px solid #fbbf24;
+        }
+
+        .contract-question {
+            font-size: 1.4em;
+            color: #666;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        .contract-buttons {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        #acceptBtn {
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+            color: white;
+            padding: 18px 45px;
+            font-size: 1.3em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+            transition: all 0.3s;
+            border: 3px solid #7c3aed;
+        }
+
+        #acceptBtn:hover {
+            transform: scale(1.1) translateY(-3px);
+            box-shadow: 0 12px 30px rgba(139, 92, 246, 0.6);
+        }
+
+        #runBtn {
+            background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+            color: #666;
+            padding: 18px 45px;
+            font-size: 1.3em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: 3px solid #9ca3af;
+        }
+
+        /* Popup Message */
+        .popup-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 50px;
+            border-radius: 25px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            text-align: center;
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border: 5px solid #8b5cf6;
+        }
+
+        .popup-message.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .popup-text {
+            font-size: 1.8em;
+            color: #8b5cf6;
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+
+        .close-popup-btn {
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+            color: white;
+            padding: 15px 35px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .close-popup-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Success Message */
+        .success-message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: linear-gradient(135deg, #ffffff, #fef3c7);
+            padding: 70px 50px;
+            border-radius: 35px;
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.4);
+            z-index: 400;
+            border: 6px solid #fbbf24;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: successAppear 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes successAppear {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .success-message h1 {
+            font-size: 3.5em;
+            color: #8b5cf6;
+            margin-bottom: 25px;
+            text-shadow: 0 3px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .success-message p {
+            font-size: 1.6em;
+            color: #7c3aed;
+            line-height: 2;
+        }
+
+        /* Hearts shower */
+        .heart-shower {
+            position: fixed;
+            font-size: 35px;
+            pointer-events: none;
+            z-index: 999;
+            animation: heartFall 3.5s linear forwards;
+        }
+
+        @keyframes heartFall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background floating hearts -->
+    <div class="bg-hearts" style="top: 10%; left: 15%;">💕</div>
+    <div class="bg-hearts" style="top: 20%; right: 20%; animation-delay: 2s;">💖</div>
+    <div class="bg-hearts" style="bottom: 15%; left: 25%; animation-delay: 4s;">💗</div>
+    <div class="bg-hearts" style="bottom: 25%; right: 15%; animation-delay: 6s;">💝</div>
+
+    <!-- Envelope Scene -->
+    <div class="envelope-scene" id="envelopeScene">
+        <div class="envelope-wrapper" id="envelopeWrapper">
+            <div class="envelope-back">
+                <div class="envelope-pattern"></div>
+            </div>
+            <div class="envelope-front">
+                <div class="envelope-pattern"></div>
+            </div>
+            <div class="envelope-flap" id="envelopeFlap">
+                <div class="envelope-seal">💌</div>
+            </div>
+            <div class="click-text">✨ Click to open your promises ✨</div>
+        </div>
+    </div>
+
+    <!-- Map Container with Garden -->
+    <div class="map-container" id="mapContainer">
+        <div class="treasure-map" id="treasureMap">
+            <div class="map-lines"></div>
+            <div class="compass">🧭</div>
+            
+            <!-- Garden decorations will be added dynamically -->
+        </div>
+    </div>
+
+    <!-- Promise Card -->
+    <div class="promise-card" id="promiseCard">
+        <div class="promise-emoji-big" id="promiseEmoji">😤</div>
+        <div class="promise-text-big" id="promiseText"></div>
+        <button class="next-btn" id="nextBtn">Next Promise 💝</button>
+    </div>
+
+    <!-- Contract Container -->
+    <div class="contract-container" id="contractContainer">
+        <div class="contract-title">💍 Official Promise Day Agreement</div>
+        <div class="contract-subtitle">A Contract Written in Love & Sealed Forever</div>
+        
+        <div class="contract-promises">
+            <div class="contract-promise-item">
+                <span class="contract-promise-emoji">😤</span>
+                <span class="contract-promise-text">I promise to annoy you daily. Professionally. With love.</span>
+            </div>
+            <div class="contract-promise-item">
+                <span class="contract-promise-emoji">👂</span>
+                <span class="contract-promise-text">I promise to listen to your rants even when I'm bored (I'll just nod convincingly).</span>
+            </div>
+            <div class="contract-promise-item">
+                <span class="contract-promise-emoji">🍰</span>
+                <span class="contract-promise-text">I promise to feed you... but NOT share my dessert. That's sacred.</span>
+            </div>
+            <div class="contract-promise-item">
+                <span class="contract-promise-emoji">😏</span>
+                <span class="contract-promise-text">I promise to tease you relentlessly, but actually love you endlessly.</span>
+            </div>
+            <div class="contract-promise-item">
+                <span class="contract-promise-emoji">💕</span>
+                <span class="contract-promise-text">I promise to choose you daily, grow with you, and never weaponize silence.</span>
+            </div>
+        </div>
+
+        <div class="contract-footer">
+            <div class="contract-question">💝 Do you accept this emotionally binding contract? 💝</div>
+            <div class="contract-buttons">
+                <button id="acceptBtn">I Accept This Love 💖</button>
+                <button id="runBtn">Run Away 🏃</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup Message -->
+    <div class="popup-message" id="popupMessage">
+        <div class="popup-text">😏 You signed this emotionally already.</div>
+        <button class="close-popup-btn" id="closePopup">Okay, fine 💕</button>
+    </div>
+
+    <!-- Success Message -->
+    <div class="success-message" id="successMessage">
+        <h1>🎉 Contract Accepted! 💍</h1>
+        <p>You've officially signed up for a lifetime of<br>love, laughter, and stolen desserts! 💕</p>
+        <p style="margin-top: 35px; font-size: 2.2em; color: #8b5cf6;">Forever & Always ✨</p>
+    </div>
+
+    <script>
+        const promises = [
+            { emoji: '😤', text: 'I promise to annoy you daily. Professionally. With love.' },
+            { emoji: '👂', text: "I promise to listen to your rants even when I'm bored (I'll just nod convincingly)." },
+            { emoji: '🍰', text: "I promise to feed you... but NOT share my dessert. That's sacred." },
+            { emoji: '😏', text: 'I promise to tease you relentlessly, but actually love you endlessly.' },
+            { emoji: '💕', text: 'I promise to choose you daily, grow with you, and never weaponize silence.' }
+        ];
+
+        let currentPromiseIndex = 0;
+        let giftBoxes = [];
+
+        const envelopeFlap = document.getElementById('envelopeFlap');
+        const envelopeWrapper = document.getElementById('envelopeWrapper');
+        const envelopeScene = document.getElementById('envelopeScene');
+        const mapContainer = document.getElementById('mapContainer');
+        const treasureMap = document.getElementById('treasureMap');
+        const promiseCard = document.getElementById('promiseCard');
+        const nextBtn = document.getElementById('nextBtn');
+        const contractContainer = document.getElementById('contractContainer');
+        const runBtn = document.getElementById('runBtn');
+        const acceptBtn = document.getElementById('acceptBtn');
+        const popupMessage = document.getElementById('popupMessage');
+        const closePopup = document.getElementById('closePopup');
+        const successMessage = document.getElementById('successMessage');
+
+        // Open envelope on click
+        envelopeFlap.addEventListener('click', openEnvelope);
+
+        function openEnvelope() {
+            envelopeFlap.classList.add('open');
+            
+            setTimeout(() => {
+                throwRoses();
+            }, 600);
+
+            setTimeout(() => {
+                envelopeWrapper.classList.add('open');
+            }, 2500);
+
+            setTimeout(() => {
+                envelopeScene.style.display = 'none';
+                mapContainer.classList.add('active');
+                createGarden();
+                createGiftBoxes();
+            }, 3700);
+        }
+
+        // Throw roses animation
+        function throwRoses() {
+            const roseEmojis = ['🌹', '🌹', '🌹', '💐', '🌺', '🌸', '🌷', '🌻'];
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+
+            for (let i = 0; i < 25; i++) {
+                setTimeout(() => {
+                    const rose = document.createElement('div');
+                    rose.className = 'rose';
+                    rose.textContent = roseEmojis[Math.floor(Math.random() * roseEmojis.length)];
+                    
+                    const angle = (Math.PI * 2 * i) / 25;
+                    const distance = 350 + Math.random() * 500;
+                    const tx = Math.cos(angle) * distance;
+                    const ty = Math.sin(angle) * distance;
+                    
+                    rose.style.left = centerX + 'px';
+                    rose.style.top = centerY + 'px';
+                    rose.style.setProperty('--tx', tx + 'px');
+                    rose.style.setProperty('--ty', ty + 'px');
+                    
+                    document.body.appendChild(rose);
+                    
+                    setTimeout(() => rose.remove(), 2500);
+                }, i * 40);
+            }
+        }
+
+        // Create garden decorations
+        function createGarden() {
+            // Flowers around the map
+            const flowerPositions = [
+                { emoji: '🌸', top: '5%', left: '8%' },
+                { emoji: '🌺', top: '8%', right: '12%' },
+                { emoji: '🌷', bottom: '10%', left: '10%' },
+                { emoji: '🌻', bottom: '8%', right: '8%' },
+                { emoji: '🌼', top: '15%', left: '15%' },
+                { emoji: '🌹', top: '12%', right: '18%' },
+                { emoji: '🏵️', bottom: '15%', left: '18%' },
+                { emoji: '💐', bottom: '12%', right: '15%' },
+                { emoji: '🌸', top: '50%', left: '3%' },
+                { emoji: '🌺', top: '50%', right: '3%' },
+            ];
+
+            flowerPositions.forEach((pos, index) => {
+                setTimeout(() => {
+                    const flower = document.createElement('div');
+                    flower.className = 'garden-flower';
+                    flower.textContent = pos.emoji;
+                    flower.style.top = pos.top || 'auto';
+                    flower.style.bottom = pos.bottom || 'auto';
+                    flower.style.left = pos.left || 'auto';
+                    flower.style.right = pos.right || 'auto';
+                    flower.style.animationDelay = `${index * 0.2}s`;
+                    treasureMap.appendChild(flower);
+                }, index * 100);
+            });
+
+            // Trees
+            const treePositions = [
+                { emoji: '🌳', top: '10%', left: '5%' },
+                { emoji: '🌲', top: '15%', right: '5%' },
+                { emoji: '🌴', bottom: '12%', left: '6%' },
+                { emoji: '🌳', bottom: '18%', right: '6%' },
+            ];
+
+            treePositions.forEach((pos, index) => {
+                setTimeout(() => {
+                    const tree = document.createElement('div');
+                    tree.className = 'garden-tree';
+                    tree.textContent = pos.emoji;
+                    tree.style.top = pos.top || 'auto';
+                    tree.style.bottom = pos.bottom || 'auto';
+                    tree.style.left = pos.left || 'auto';
+                    tree.style.right = pos.right || 'auto';
+                    tree.style.animationDelay = `${index * 0.3}s`;
+                    treasureMap.appendChild(tree);
+                }, index * 150);
+            });
+
+            // Bushes
+            const bushPositions = [
+                { top: '25%', left: '8%' },
+                { top: '30%', right: '10%' },
+                { bottom: '25%', left: '12%' },
+                { bottom: '30%', right: '8%' },
+            ];
+
+            bushPositions.forEach((pos, index) => {
+                const bush = document.createElement('div');
+                bush.className = 'garden-bush';
+                bush.textContent = '🌿';
+                bush.style.top = pos.top || 'auto';
+                bush.style.bottom = pos.bottom || 'auto';
+                bush.style.left = pos.left || 'auto';
+                bush.style.right = pos.right || 'auto';
+                treasureMap.appendChild(bush);
+            });
+
+            // Decorative path stones
+            const pathStones = [
+                { top: '45%', left: '20%' },
+                { top: '48%', left: '25%' },
+                { top: '50%', left: '30%' },
+                { top: '52%', left: '35%' },
+                { top: '50%', left: '40%' },
+                { top: '48%', left: '45%' },
+                { top: '50%', left: '50%' },
+                { top: '52%', left: '55%' },
+                { top: '50%', left: '60%' },
+                { top: '48%', left: '65%' },
+            ];
+
+            const pathContainer = document.createElement('div');
+            pathContainer.className = 'garden-path';
+            pathStones.forEach(pos => {
+                const stone = document.createElement('div');
+                stone.className = 'path-stone';
+                stone.style.top = pos.top;
+                stone.style.left = pos.left;
+                pathContainer.appendChild(stone);
+            });
+            treasureMap.appendChild(pathContainer);
+        }
+
+        // Create gift boxes on the map
+        function createGiftBoxes() {
+            const positions = [
+                { top: '20%', left: '25%' },
+                { top: '28%', left: '65%' },
+                { top: '55%', left: '20%' },
+                { top: '65%', left: '70%' },
+                { top: '75%', left: '45%' }
+            ];
+
+            positions.forEach((pos, index) => {
+                setTimeout(() => {
+                    const boxWrapper = document.createElement('div');
+                    boxWrapper.style.position = 'absolute';
+                    boxWrapper.style.top = pos.top;
+                    boxWrapper.style.left = pos.left;
+                    boxWrapper.style.transform = 'translate(-50%, -50%)';
+
+                    const box = document.createElement('div');
+                    box.className = 'gift-box';
+                    box.innerHTML = '🎁';
+                    box.style.fontSize = '90px';
+                    box.dataset.index = index;
+                    
+                    // Add sparkles around gift
+                    for (let i = 0; i < 4; i++) {
+                        const sparkle = document.createElement('div');
+                        sparkle.className = 'gift-sparkle';
+                        sparkle.textContent = '✨';
+                        sparkle.style.position = 'absolute';
+                        sparkle.style.top = `${-20 + i * 15}px`;
+                        sparkle.style.left = `${-20 + (i % 2) * 40}px`;
+                        sparkle.style.animationDelay = `${i * 0.3}s`;
+                        boxWrapper.appendChild(sparkle);
+                    }
+
+                    box.addEventListener('click', () => openGift(box, index));
+                    
+                    boxWrapper.appendChild(box);
+                    treasureMap.appendChild(boxWrapper);
+                    giftBoxes.push(box);
+                }, index * 400);
+            });
+        }
+
+        // Open gift box
+        function openGift(box, index) {
+            if (index !== currentPromiseIndex) {
+                box.style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    box.style.animation = '';
+                }, 500);
+                return;
+            }
+
+            box.classList.add('opened');
+            showPromise(index);
+        }
+
+        // Show promise card
+        function showPromise(index) {
+            const promise = promises[index];
+            document.getElementById('promiseEmoji').textContent = promise.emoji;
+            document.getElementById('promiseText').textContent = promise.text;
+            promiseCard.classList.add('show');
+            
+            if (index === promises.length - 1) {
+                nextBtn.textContent = 'View Contract 💍';
+            }
+        }
+
+        // Next button
+        nextBtn.addEventListener('click', () => {
+            promiseCard.classList.remove('show');
+            currentPromiseIndex++;
+            
+            if (currentPromiseIndex >= promises.length) {
+                setTimeout(() => {
+                    mapContainer.classList.remove('active');
+                    contractContainer.classList.add('show');
+                }, 600);
+            }
+        });
+
+        // Run away button
+        runBtn.addEventListener('mouseover', () => {
+            const maxX = window.innerWidth - runBtn.offsetWidth - 20;
+            const maxY = window.innerHeight - runBtn.offsetHeight - 20;
+            
+            const randomX = Math.random() * maxX;
+            const randomY = Math.random() * maxY;
+            
+            runBtn.style.position = 'fixed';
+            runBtn.style.left = randomX + 'px';
+            runBtn.style.top = randomY + 'px';
+        });
+
+        runBtn.addEventListener('click', () => {
+            popupMessage.classList.add('show');
+        });
+
+        closePopup.addEventListener('click', () => {
+            popupMessage.classList.remove('show');
+        });
+
+        // Accept button
+        acceptBtn.addEventListener('click', () => {
+            contractContainer.classList.remove('show');
+            successMessage.classList.add('show');
+            
+            const heartInterval = setInterval(() => {
+                createHeart();
+            }, 80);
+            
+            setTimeout(() => {
+                clearInterval(heartInterval);
+            }, 5000);
+        });
+
+        function createHeart() {
+            const hearts = ['💕', '💖', '💗', '💓', '💝', '💘', '❤️', '🩷', '💍', '💌', '✨'];
+            const heart = document.createElement('div');
+            heart.className = 'heart-shower';
+            heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+            heart.style.left = Math.random() * window.innerWidth + 'px';
+            heart.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            
+            document.body.appendChild(heart);
+            
+            setTimeout(() => heart.remove(), 4000);
+        }
+
+        // Add shake animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translate(-50%, -50%) translateX(0); }
+                25% { transform: translate(-50%, -50%) translateX(-15px) rotate(-8deg); }
+                75% { transform: translate(-50%, -50%) translateX(15px) rotate(8deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
